@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <canvas id="mycanvas" width="400" height="400"></canvas>
+    
+
+    <script>
+        
+        const canvas = document.getElementById("mycanvas")
+        const ctx = canvas.getContext("2d")
+       
+
+        
+
+        /* 키보드 이벤트 부여 */
+        window.onload = () => {
+            random();
+            appleDraw();
+
+            document.addEventListener("keydown", keyPush)
+            
+            setInterval(game, 1000 / 15)
+        }
+        
+
+        /* 현재 블럭의 위치를 저장하는 위치 변수 생성 */
+        let x = 0, y = 0
+        let appleX = 0, appleY = 0
+        const snakeSize = 20, tileCount = 20
+        const appleSize = 20
+
+        //let img = new Image();
+        //img.src = "requirements.png" ; //requirements.png라는 이미지 파일을 로딩 시작
+        
+
+        /* 랜덤숫자 생성 */
+        function random(){
+            let ranNum = Math.floor(Math.random()*20);
+            return ranNum;
+        }
+        
+        /* 사과 랜덤으로 위치하게 하기 */
+        function appleDraw(){
+            let rowX = random(); //x행
+            let colY = random(); //y열
+            
+           
+            if(x == rowX && y == colY){
+                rowX = random();
+                colY = random();
+            }
+           
+            appleX = rowX
+            appleY = colY
+        }
+        
+        function game(){
+
+            if(x < 0 || x > tileCount - 1 || y < 0 || y > tileCount - 1) {
+                alert("벽에 부딪혔습니다.");
+                x = 0;
+                y = 0;
+            }
+            
+            ctx.fillStyle = "green"
+            ctx.fillRect(0, 0, canvas.width, canvas.height) 
+            
+            //이미지 로딩 완료시 실행되는 함수
+            /*img.onload = function () {
+                ctx.drawImage(img, x * snakeSize, y * snakeSize, snakeSize, snakeSize);
+            }*/
+
+
+            ctx.fillStyle = "tomato"
+            ctx.fillRect(x * snakeSize, y * snakeSize, snakeSize, snakeSize)
+          
+            ctx.fillStyle = "white"
+            ctx.fillRect(appleX * appleSize, appleY * appleSize, appleSize, appleSize)
+
+        }
+
+        /* 방향키를 눌렀을 떄 이벤트 함수 */
+        function keyPush(e) { 
+            switch(e.keyCode) { //e.keyCode -> 현재 눌린 키보드의 키코드 
+                // 37: 좌, 38: 위, 39: 우, 40: 아래
+                case 37:
+                    x += -1;
+                    y += 0;
+                    break;
+                case 38:
+                    x += 0;
+                    y += -1;
+                    break;
+                case 39:
+                    x += 1;
+                    y += 0;
+                    break;
+                case 40:
+                    x += 0;
+                    y += 1;
+                    break;   
+            }
+
+            if(x==appleX && y==appleY){alert("뱀이 사과를 먹었습니다!");x = 0, y = 0}
+        }
+
+
+        
+    </script>
+
+    
+</body>
+
+
+</html>
