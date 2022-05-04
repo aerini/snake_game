@@ -2,115 +2,180 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Document</title>
+    <title>Snake Game</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.slim.js" integrity="sha256-HwWONEZrpuoh951cQD1ov2HUK5zA5DwJ1DNUXaM6FsY="crossorigin="anonymous"></script>
 </head>
 
 <body>
     <canvas id="mycanvas" width="400" height="400"></canvas>
-    
-
+    <button type="button" id="playBtn">Play</button>
     <script>
         
         const canvas = document.getElementById("mycanvas")
         const ctx = canvas.getContext("2d")
-       
+        const gridSize = 20, totalSize = 20 
 
-        
+        // 위치 관련 변수
+        let snakeX = 0, snakeY = 0        // 뱀의 위치 변수
+        let appleX = 0, appleY = 0      // 사과 위치 변수
+        let snakeArray = [];               // 뱀의 몸통 저장 배열
+        let interval;
+        let appleCount = 0;               // 먹은 사과 개수
+        let direction = "right";          // 뱀이 자동으로 움직일 때 이동 방향(기본값 오른쪽)
+    
+
+         // 게임판 설정
+         ctx.fillStyle = "black"
+
+        /* fillRect(x, y, width, height) 
+        * x,y는 그리려는 사각형의 위치
+        * width, height는 그리려는 사각형의 크기
+        */
+        ctx.fillRect(0, 0, canvas.width, canvas.height) 
+
+
+        let playBtn = document.getElementById('playBtn');
+        playBtn.addEventListener('click', function () {
+            gameStart();
+        })
+
 
         /* 키보드 이벤트 부여 */
-        window.onload = () => {
-            random();
-            appleDraw();
-
+        function gameStart(){
+            
             document.addEventListener("keydown", keyPush)
             
-            setInterval(game, 1000 / 15)
+            interval = setInterval(gamePlay, 300)
         }
         
-
-        /* 현재 블럭의 위치를 저장하는 위치 변수 생성 */
-        let x = 0, y = 0
-        let appleX = 0, appleY = 0
-        const snakeSize = 20, tileCount = 20
-        const appleSize = 20
-
-        //let img = new Image();
-        //img.src = "requirements.png" ; //requirements.png라는 이미지 파일을 로딩 시작
         
+        /* 방향키를 눌렀을 떄 이벤트 함수 */
+        function keyPush(e) { 
+            switch(e.keyCode) { //e.keyCode -> 현재 눌린 키보드의 키코드 
+                case 37:  // 왼쪽
+                    if(direction != "right"){direction = "left"}        // 움직이고 있는 방향이 오른쪽일때 왼쪽키로 움직일 수 없도록.
+                    break;
+                case 39:  // 오른쪽
+                    if(direction != "left"){direction = "right"} 
+                    break;
+                case 38:   // 위
+                    if(direction != "down"){direction = "up"} 
+                    break;
+                case 40:   // 아래
+                    if(direction != "up"){direction = "down"} 
+                    break;   
+            }
+
+            //if(x==appleX && y==appleY){alert("뱀이 사과를 먹었습니다!");x = 0, y = 0}
+        }
 
         /* 랜덤숫자 생성 */
-        function random(){
-            let ranNum = Math.floor(Math.random()*20);
+        function randomNum(){
+            let ranNum = Math.floor(Math.random()*totalSize);
             return ranNum;
         }
         
         /* 사과 랜덤으로 위치하게 하기 */
-        function appleDraw(){
-            let rowX = random(); //x행
-            let colY = random(); //y열
-            
-           
-            if(x == rowX && y == colY){
-                appleDraw();
-            }else{
-                appleX = rowX
-                appleY = colY
-            }
-           
-            
+        function appleRandom(){
+            appleX= randomNum(); 
+            appleY = randomNum(); 
+
         }
         
-        function game(){
 
-            if(x < 0 || x > tileCount - 1 || y < 0 || y > tileCount - 1) {
-                alert("벽에 부딪혔습니다.");
-                x = 0;
-                y = 0;
+        function gamePlay(){
+            // 사과 랜덤으로 뿌리기
+            appleDraw();
+
+            // 뱀 그리기
+            snakeDraw();
+
+            // 게임 도중 벽에 부딪혔을 때 Game over
+            if( snakeX < 0 || snakeX > (totalSize - 1) || snakeY < 0 || snakeY > (totalSize - 1) ) {    
+                gameOver();
             }
-            
-            ctx.fillStyle = "gray"
-            ctx.fillRect(0, 0, canvas.width, canvas.height) 
-            
-            //이미지 로딩 완료시 실행되는 함수
-            /*img.onload = function () {
-                ctx.drawImage(img, x * snakeSize, y * snakeSize, snakeSize, snakeSize);
-            }*/
-
-
-            ctx.fillStyle = "green" 
-            ctx.fillRect(x * snakeSize, y * snakeSize, snakeSize, snakeSize)
-          
-            ctx.fillStyle = "tomato"
-            ctx.fillRect(appleX * appleSize, appleY * appleSize, appleSize, appleSize)
-
         }
-
-        /* 방향키를 눌렀을 떄 이벤트 함수 */
-        function keyPush(e) { 
-            switch(e.keyCode) { //e.keyCode -> 현재 눌린 키보드의 키코드 
-                // 37: 좌, 38: 위, 39: 우, 40: 아래
-                case 37:
-                    x += -1;
-                    y += 0;
+        
+        function autoMove(){
+            switch(direction) { 
+                case "left":  // 왼쪽
+                    snakeX -= 1
                     break;
-                case 38:
-                    x += 0;
-                    y += -1;
+                case "right":  // 오른쪽
+                    snakeX += 1
                     break;
-                case 39:
-                    x += 1;
-                    y += 0;
+                case "up":   // 위
+                    snakeY -= 1
                     break;
-                case 40:
-                    x += 0;
-                    y += 1;
+                case "down":   // 아래
+                    snakeY += 1
                     break;   
             }
 
-            if(x==appleX && y==appleY){alert("뱀이 사과를 먹었습니다!");x = 0, y = 0}
         }
 
+
+        function appleDraw(){
+            
+            //appleRandom();
+
+            // 사과를 처음 뿌릴 시 겹치지 않게
+            if( appleX == 0 && appleY == 0 ){   
+                appleRandom();              
+            }
+       
+            // 뱀이 사과를 먹었을 때 -> 사과 다시 그리기
+            if( snakeX ==  appleX && snakeY ==  appleY ){
+                appleCount += 1;
+                appleRemove();
+                appleRandom();  
+            }
+
+            ctx.fillStyle = "tomato"
+            ctx.fillRect(appleX * gridSize, appleY * gridSize, gridSize, gridSize)
+
+
+        }
+
+        function snakeDraw(){
+           
+            // 뱀 자동으로 움직이기
+           autoMove();
+
+            ctx.fillStyle = "green" 
+            // snakeArray : 뱀이 이동한 위치를 저장
+            for(let i = 0; i < snakeArray.length; i++) {
+                ctx.fillRect(snakeArray[i].x * gridSize, snakeArray[i].y * gridSize, gridSize-2, gridSize-2)
+            }
+            
+            // 게임이 진행될 때마다 positionXY를 snakeArray 배열에 넣어서 위치 기억
+            // positionX, positionY의 위치를 객체 형태로 저장
+            snakeArray.push({
+                x: snakeX, 
+                y: snakeY
+            })
+
+            while(snakeArray.length > 5 ) {
+                snakeArray.shift()
+            }
+        }
+
+        function appleRemove(){
+            
+
+        }
+        
+        function gameOver(){
+            let snakeX = 0, snakeY = 0        
+            let appleX = 0, appleY = 0      
+            let appleCount = 0;              
+            let direction = "right";    
+
+            alert("벽에 부딪혔습니다, Game Over - !");     
+            clearInterval(interval);
+            location.reload();
+        }
 
         
     </script>
@@ -120,3 +185,6 @@
 
 
 </html>
+
+
+
