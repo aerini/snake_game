@@ -85,15 +85,15 @@
         
 
         function gamePlay(){
-            // 사과 랜덤으로 뿌리기
-            appleDraw();
+             // 사과 랜덤으로 뿌리기
+             appleDraw();  
 
             // 뱀 그리기
             snakeDraw();
 
             // 게임 도중 벽에 부딪혔을 때 Game over
             if( snakeX < 0 || snakeX > (totalSize - 1) || snakeY < 0 || snakeY > (totalSize - 1) ) {    
-                gameOver();
+                gameOver("벽에 부딪혔습니다, Game Over - !");
             }
         }
         
@@ -120,59 +120,51 @@
             
             //appleRandom();
 
-            // 사과를 처음 뿌릴 시 겹치지 않게
-            if( appleX == 0 && appleY == 0 ){   
-                appleRandom();              
-            }
-       
-            // 뱀이 사과를 먹었을 때 -> 사과 다시 그리기
-            if( snakeX ==  appleX && snakeY ==  appleY ){
-                appleCount += 1;
-                appleRemove();
-                appleRandom();  
-            }
+            // 사과를 처음 뿌릴 시 겹치지 않게 || 뱀이 사과를 먹었을 때 
+            if( (appleX == 0 && appleY == 0) || (appleX == snakeX && appleY == snakeY) ){   
 
+                if( appleX == snakeX && appleY == snakeY ){
+                    appleCount++;
+                }
+
+                appleRandom();        
+            }
+         
             ctx.fillStyle = "tomato"
             ctx.fillRect(appleX * gridSize, appleY * gridSize, gridSize, gridSize)
-
-
         }
 
         function snakeDraw(){
            
             // 뱀 자동으로 움직이기
            autoMove();
-
-            ctx.fillStyle = "green" 
-            // snakeArray : 뱀이 이동한 위치를 저장
-            for(let i = 0; i < snakeArray.length; i++) {
-                ctx.fillRect(snakeArray[i].x * gridSize, snakeArray[i].y * gridSize, gridSize-2, gridSize-2)
-            }
-            
-            // 게임이 진행될 때마다 positionXY를 snakeArray 배열에 넣어서 위치 기억
-            // positionX, positionY의 위치를 객체 형태로 저장
-            snakeArray.push({
-                x: snakeX, 
-                y: snakeY
+           
+           snakeArray.push({
+                x : snakeX ,
+                y : snakeY
             })
 
-            while(snakeArray.length > 5 ) {
-                snakeArray.shift()
+            while(snakeArray.length > appleCount  ) {
+                snakeArray.shift();
             }
-        }
-
-        function appleRemove(){
             
+            ctx.fillStyle = "green";
+            for(i = 0; i < snakeArray.length; i++){
+                ctx.fillRect(snakeArray[i].x * gridSize, snakeArray[i].y * gridSize, gridSize-2, gridSize-2);
+            }
 
+
+            
         }
-        
-        function gameOver(){
+
+
+        function gameOver(msg){
             let snakeX = 0, snakeY = 0        
             let appleX = 0, appleY = 0      
             let appleCount = 0;              
             let direction = "right";    
 
-            alert("벽에 부딪혔습니다, Game Over - !");     
+            alert(msg);     
             clearInterval(interval);
             location.reload();
         }
