@@ -85,6 +85,8 @@
         
 
         function gamePlay(){
+            ctx.fillStyle = "black"
+            ctx.fillRect(0, 0, canvas.width, canvas.height) 
              // 사과 랜덤으로 뿌리기
              appleDraw();  
 
@@ -120,7 +122,7 @@
             
             //appleRandom();
 
-            // 사과를 처음 뿌릴 시 겹치지 않게 || 뱀이 사과를 먹었을 때 
+            // 사과가 뱀의 위치(0,0)와 겹치거나 || 뱀이 사과를 먹었을 때 
             if( (appleX == 0 && appleY == 0) || (appleX == snakeX && appleY == snakeY) ){   
 
                 if( appleX == snakeX && appleY == snakeY ){
