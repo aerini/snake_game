@@ -7,13 +7,16 @@
 </head>
 
 <body>
-    <canvas id="mycanvas" width="400" height="400"></canvas>
-    <button type="button" id="playBtn">Play</button>
+    <div id="game-div">
+        <canvas id="game-canvas" width="625" height="625"></canvas>
+        <div><h3>score: <span id="score">0</span></h3></div>
+        <button type="button" id="playBtn">Play</button>
+    </div>
     <script>
         
-        const canvas = document.getElementById("mycanvas")
+        const canvas = document.getElementById("game-canvas")
         const ctx = canvas.getContext("2d")
-        const gridSize = 20, totalSize = 20 
+        const gridSize = 25, totalSize = 25
 
         // 위치 관련 변수
         let snakeX = 0, snakeY = 0        // 뱀의 위치 변수
@@ -22,7 +25,7 @@
         let interval;
         let appleCount = 0;               // 먹은 사과 개수
         let direction = "right";          // 뱀이 자동으로 움직일 때 이동 방향(기본값 오른쪽)
-    
+      
 
          // 게임판 설정
          ctx.fillStyle = "black"
@@ -32,6 +35,15 @@
         * width, height는 그리려는 사각형의 크기
         */
         ctx.fillRect(0, 0, canvas.width, canvas.height) 
+      
+         window.onload = () => {          
+            // 사과 랜덤으로 뿌리기
+            appleDraw();  
+            
+            // 뱀 그리기
+            snakeDraw();
+            
+        }
 
 
         let playBtn = document.getElementById('playBtn');
@@ -77,7 +89,7 @@
         
         /* 사과 랜덤으로 위치하게 하기 */
         function appleRandom(){
-            appleX= randomNum(); 
+            appleX = randomNum(); 
             appleY = randomNum(); 
 
         }
@@ -86,6 +98,7 @@
         function gamePlay(){
             ctx.fillStyle = "black"
             ctx.fillRect(0, 0, canvas.width, canvas.height) 
+            
              // 사과 랜덤으로 뿌리기
              appleDraw();  
 
@@ -118,36 +131,38 @@
 
 
         function appleDraw(){
-            
-            //appleRandom();
-
+                
             // 사과가 뱀의 위치(0,0)와 겹치거나 || 뱀이 사과를 먹었을 때 
             if( (appleX == 0 && appleY == 0) || (appleX == snakeX && appleY == snakeY) ){   
 
                 if( appleX == snakeX && appleY == snakeY ){
+                    console.log(appleX);console.log(snakeX);console.log('====='); console.log(appleY);console.log(snakeY);
                     appleCount++;
+                    totalScore(appleCount);
+                    appleRandom(); 
+                }
+                
+                if( appleX == 0 && appleY == 0 ){
+                    appleDraw();
                 }
 
-                appleRandom();        
+                //appleRandom();        
             }
-            
-            // 3. path 그리기 시작 설정 
-            /*ctx.beginPath(); 
-            // 4. 원 모양 설정 
-            ctx.arc(2, 2, 1, 0, 2*Math.PI); 
-            // 5. 그리기 
-            ctx.stroke(); 
-            // 6. 원 내부 색 채우기 
-            ctx.fillStyle = "tomato"
-            ctx.fill();*/
 
 
-            ctx.fillStyle = "tomato"
-            ctx.fillRect(appleX * gridSize, appleY * gridSize, gridSize-2, gridSize-2)
+            var img = new Image (); //이미지 객체 생성
+            img.src = "premium-chicken.png" ; //son.jpeg라는 이미지 파일을 로딩 시작
+            img.onload = function () //이미지 로딩 완료시 실행되는 함수
+            {
+                //(20,20)을 중심으로 100*100의 사이즈로 이미지를 그림 
+                ctx.drawImage (img, appleX * gridSize, appleY * gridSize, gridSize-2, gridSize-2);
+            }
+            //ctx.fillStyle = "tomato"
+           // ctx.fillRect(appleX * gridSize, appleY * gridSize, gridSize-2, gridSize-2)
         }
 
         function snakeDraw(){
-           
+        
             // 뱀 자동으로 움직이기
            autoMove();
            
@@ -156,32 +171,53 @@
                 y : snakeY
             })
 
-            while(snakeArray.length > appleCount  ) {   // 뱀을 그리는 시점을 확인해봐야 할 듯!
+            while(snakeArray.length > appleCount ) {   // 뱀을 그리는 시점을 확인해봐야 할 듯!
                 snakeArray.shift();
             }
             
-            ctx.fillStyle = "green";
-            for(i = 0; i < snakeArray.length; i++){
-                ctx.fillRect(snakeArray[i].x * gridSize, snakeArray[i].y * gridSize, gridSize-2, gridSize-2);
+           
+            var img = new Image (); //이미지 객체 생성
+            img.src = "snake.png" ; //son.jpeg라는 이미지 파일을 로딩 시작
+            img.onload = function () //이미지 로딩 완료시 실행되는 함수
+            {
+                
+                //(20,20)을 중심으로 100*100의 사이즈로 이미지를 그림 
+                for(i = 0; i < snakeArray.length; i++){
+
+                    if( i != 0 && snakeArray[0].x == snakeArray[i].x && snakeArray[0].y == snakeArray[i].y ){
+                        gameOver("머리가 몸에 부딪혔습니다. Game Over - !");
+                    }
+                    if( i == snakeArray.length - 1 ){
+                        ctx.drawImage (img, snakeArray[i].x * gridSize, snakeArray[i].y * gridSize, gridSize-2, gridSize-2);
+                    }else{
+                        ctx.fillStyle = "green";
+                        ctx.fillRect(snakeArray[i].x * gridSize, snakeArray[i].y * gridSize, gridSize-2, gridSize-2);
+                    }
+                }
             }
-
-
+    
             
         }
 
 
         function gameOver(msg){
-            let snakeX = 0, snakeY = 0        
-            let appleX = 0, appleY = 0      
-            let appleCount = 0;              
-            let direction = "right";    
+            snakeX = 0, snakeY = 0        
+            appleX = 0, appleY = 0      
+            appleCount = 0;              
+            direction = "right";    
 
             alert(msg);     
             clearInterval(interval);
             location.reload();
         }
 
+        function totalScore(appleCount){
+            let score = document.getElementById('score');
+            score.innerText = appleCount;
+        }
         
+
+
     </script>
 
     
@@ -189,6 +225,7 @@
 
 
 </html>
+
 
 
 
