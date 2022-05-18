@@ -8,7 +8,7 @@
 
 <body>
     <div id="game-div">
-        <canvas id="game-canvas" width="625" height="625"></canvas>
+        <canvas id="game-canvas" width="400" height="400"></canvas>
         <div><h3>score: <span id="score">0</span></h3></div>
         <button type="button" id="playBtn">Play</button>
     </div>
@@ -16,7 +16,7 @@
         
         const canvas = document.getElementById("game-canvas")
         const ctx = canvas.getContext("2d")
-        const gridSize = 25, totalSize = 25
+        const gridSize = 20, totalSize = 20
 
         // 위치 관련 변수
         let snakeX = 0, snakeY = 0        // 뱀의 위치 변수
@@ -188,10 +188,10 @@
                         gameOver("머리가 몸에 부딪혔습니다. Game Over - !");
                     }
                     if( i == snakeArray.length - 1 ){
-                        ctx.drawImage (img, snakeArray[i].x * gridSize, snakeArray[i].y * gridSize, gridSize-2, gridSize-2);
+                        ctx.drawImage (img, snakeArray[i].x * gridSize, snakeArray[i].y * gridSize, gridSize, gridSize);
                     }else{
                         ctx.fillStyle = "green";
-                        ctx.fillRect(snakeArray[i].x * gridSize, snakeArray[i].y * gridSize, gridSize-2, gridSize-2);
+                        ctx.fillRect(snakeArray[i].x * gridSize, snakeArray[i].y * gridSize, gridSize, gridSize);
                     }
                 }
             }
